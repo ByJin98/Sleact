@@ -1,4 +1,6 @@
 import CreateChannelModal from '@components/CreateChannelModal';
+import DMList from '@components/DMList';
+import ChannelList from '@components/ChannelList';
 import InviteChannelModal from '@components/InviteChannelModal';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import Menu from '@components/Menu';
@@ -41,7 +43,7 @@ const Workspace = () => {
   const { workspace } = params;
   const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
-  const { mutate: revalidateMembers } = useSWR<IUser[]>(
+  const { data: memberData, mutate: revalidateMembers } = useSWR<IUser[]>(
     userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
@@ -174,9 +176,6 @@ const Workspace = () => {
             </Menu>
             <ChannelList />
             <DMList />
-            {channelData?.map((v) => (
-              <div>{v.name}</div>
-            ))}
           </MenuScroll>
         </Channels>
         <Chats>
