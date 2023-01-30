@@ -1,3 +1,6 @@
+import CreateChannelModal from '@components/CreateChannelModal';
+import InviteChannelModal from '@components/InviteChannelModal';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
@@ -38,8 +41,13 @@ const Workspace = () => {
   const { workspace } = params;
   const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
+  const { mutate: revalidateMembers } = useSWR<IUser[]>(
+    userData ? `/api/workspaces/${workspace}/members` : null,
+    fetcher,
+  );
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
@@ -102,6 +110,7 @@ const Workspace = () => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
     setShowInviteWorkspaceModal(false);
+    setShowInviteChannelModal(false);
   }, []);
 
   const onClickUserProfile = useCallback(() => {
@@ -163,6 +172,11 @@ const Workspace = () => {
                 <button onClick={onLogOut}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
+            <ChannelList />
+            <DMList />
+            {channelData?.map((v) => (
+              <div>{v.name}</div>
+            ))}
           </MenuScroll>
         </Channels>
         <Chats>
@@ -185,6 +199,21 @@ const Workspace = () => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
+      <CreateChannelModal
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+        setShowCreateChannelModal={setShowCreateChannelModal}
+      />
+      <InviteWorkspaceModal
+        show={showInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+      />
+      <InviteChannelModal
+        show={showInviteChannelModal}
+        onCloseModal={onCloseModal}
+        setShowInviteChannelModal={setShowInviteChannelModal}
+      />
       <ToastContainer position="bottom-center" />
     </div>
   );
