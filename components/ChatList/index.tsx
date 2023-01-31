@@ -1,15 +1,27 @@
-import React, { useCallback, useRef, VFC } from 'react';
-import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
-import { IDM } from '@typings/db';
 import Chat from '@components/Chat';
+import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
+import { IChat, IDM } from '@typings/db';
+import React, { FC, RefObject, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 interface Props {
-  chatSections: { [key: string]: IDM[] };
+  scrollbarRef: RefObject<Scrollbars>;
+  isReachingEnd?: boolean;
+  isEmpty: boolean;
+  chatSections: { [key: string]: (IDM | IChat)[] };
+  setSize: (f: (size: number) => number) => Promise<(IDM | IChat)[][] | undefined>;
 }
-const ChatList: VFC<Props> = ({ chatSections }) => {
-  const scrollbarRef = useRef(null);
-  const onScroll = useCallback(() => {}, []);
+const ChatList: FC<Props> = ({ scrollbarRef, isReachingEnd, isEmpty, chatSections, setSize }) => {
+  const onScroll = useCallback(
+    (values: any) => {
+      if (values.scrollTop === 0 && !isReachingEnd && !isEmpty) {
+        setSize((size) => size + 1).then(() => {
+          scrollbarRef.current?.scrollTop(scrollbarRef.current?.getScrollHeight() - values.scrollHeight);
+        });
+      }
+    },
+    [setSize, scrollbarRef, isReachingEnd, isEmpty],
+  );
 
   return (
     <ChatZone>

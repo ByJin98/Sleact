@@ -1,19 +1,19 @@
 import React, { FC, memo, useMemo } from 'react';
 import { ChatWrapper } from './styles';
 import gravatar from 'gravatar';
-import { IDM } from '@typings/db';
+import { IChat, IDM, IUser } from '@typings/db';
 import dayjs from 'dayjs';
 import regexifyString from 'regexify-string';
 import { Link, useParams } from 'react-router-dom';
 
 interface Props {
-  data: IDM;
+  data: IDM | IChat;
 }
 
 const Chat: FC<Props> = ({ data }) => {
   const params = useParams<{ workspace?: string }>();
   const { workspace } = params;
-  const user = data.Sender;
+  const user: IUser = 'Sender' in data ? data.Sender : data.User;
 
   const result = useMemo(
     () =>
